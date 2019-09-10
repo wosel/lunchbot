@@ -11,7 +11,7 @@ TOKEN = config['token']
 
 
 client = discord.Client()
-last_mess = datetime.datetime.now() - datetime.timedelta(seconds=10)
+last_mess = datetime.datetime.utcnow() - datetime.timedelta(seconds=10)
 cache = {}
 
 def all_upper(inp_string):
@@ -95,11 +95,10 @@ async def on_message(message):
     if message.author == client.user:
         return
     mt = message.timestamp
-    mtm, mts = mt.minute, mt.second
-    lim = last_mess + delta
-    lm, ls = lim.minute, lim.second
+    
 
-    if (mtm == lm and mts < ls) or mtm < lm:
+
+    if (mt < last_mess + delta):
         if not warned:
             await client.send_message(message.channel, "You're doing that too often. Try again in 10 seconds")
             await client.send_message(message.channel, "To list all available menus, use !all (or !en_all for English)")
@@ -113,25 +112,29 @@ async def on_message(message):
         if message.content.startswith('!'+pub):
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
             await client.send_message(message.channel, msg)
-            last_mess = datetime.datetime.now()
+            last_mess = datetime.datetime.utcnow()
 
         elif message.content.startswith('!en_'+pub):
             msg = write_pub(pub, cache, cur_day, fp, 'en')
             await client.send_message(message.channel, msg)
-            last_mess = datetime.datetime.now()
+            last_mess = datetime.datetime.utcnow()
 
     if message.content.startswith('!all'):
         for pub in fp.keys():
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
             await client.send_message(message.channel, msg)
-        last_mess = datetime.datetime.now()
+        last_mess = datetime.datetime.utcnow()
 
     if message.content.startswith('!en_all'):
         for pub in fp.keys():
             msg = write_pub(pub, cache, cur_day, fp, 'en')
             await client.send_message(message.channel, msg)
-        last_mess = datetime.datetime.now()
+        last_mess = datetime.datetime.utcnow()
     
+    if message.content.startswith('!clear'):
+        cache = {}
+        await client.send_message(message.channel, "Cache cleared")
+
 
 
 @client.event
