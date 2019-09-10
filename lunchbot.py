@@ -80,10 +80,13 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
             cache[pub]['day'] = cur_day
             return msg_en
 
+warned = False
+
 @client.event
 async def on_message(message):
     global cache
     global last_mess
+    global warned
     fp = {'klid': klid, 'upecku': upecku, 'peprasul': peprasul, 'naradnici': naradnici}
     cur_day = datetime.datetime.now().day
 
@@ -97,9 +100,14 @@ async def on_message(message):
     lm, ls = lim.minute, lim.second
 
     if (mtm == lm and mts < ls) or mtm < lm:
+        if not warned:
+            await client.send_message(message.channel, "You're doing that too often. Try again in 10 seconds")
+            await client.send_message(message.channel, "To list all available menus, use !all (or !en_all for English)")
+            warned = True
         print('too soon')
         return
     else:
+        warned = False
         print('working on {}'.format(message.content))
     for pub in fp.keys():
         if message.content.startswith('!'+pub):
@@ -123,6 +131,7 @@ async def on_message(message):
             msg = write_pub(pub, cache, cur_day, fp, 'en')
             await client.send_message(message.channel, msg)
         last_mess = datetime.datetime.now()
+    
 
 
 @client.event
