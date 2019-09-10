@@ -2,8 +2,13 @@ import discord
 import datetime
 import time
 from pubs import *
+import json
 
-TOKEN = 'NjE5NDMxMzgyMzAwNDkxNzg4.XXas5w.oYH3c7qCjUvI0xrV_so-OyJRvZ8'
+
+
+config = json.load(open('config.json'))
+TOKEN = config['token']
+
 
 client = discord.Client()
 last_mess = datetime.datetime.now() - datetime.timedelta(seconds=10)
