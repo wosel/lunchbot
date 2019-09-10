@@ -22,11 +22,11 @@ def klid():
             try:
                 txt = elem.get_text().strip().replace('\n', ' ')
             except:
-                pass
+                continue
             if elem.name and elem.name.startswith('h') and txt != '':
                 break
             if elem.name == 'p' and txt != '':
-                if txt[0] != txt.lower()[0] and last_txt != '':
+                if (txt[0] != txt.lower()[0] or txt[0] in '0123456789')  and last_txt != '':
                     retstr += last_txt + '\n'
                     last_txt = txt
                 else:
@@ -36,7 +36,7 @@ def klid():
                 for el in elem.findChildren('p'):
                     eltxt = el.get_text().strip().replace('\n', ' ')
                     if eltxt != '':
-                        if eltxt[0] != eltxt.lower()[0] and last_txt != '':
+                        if (eltxt[0] != eltxt.lower()[0] or eltxt[0] in '0123456789') and last_txt != '':
                             retstr += last_txt + '\n'
                             last_txt = eltxt
                         else:
