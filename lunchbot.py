@@ -1,12 +1,16 @@
 import discord
 import datetime
-import time
+import time, sys
 from pubs import *
 import json
 
-
-
-config = json.load(open('config.json'))
+try:
+    config_fname = sys.argv[1]
+    config = json.load(open(config_fname))
+    print('config loaded from {}'.format(config_fname))
+except:
+    config = json.load(open('config.json'))
+    print('default "config.json" loaded')
 TOKEN = config['token']
 
 
@@ -53,32 +57,37 @@ def translate_msg(msg_cz):
     return msg_en
 
 def write_pub(pub, cache, cur_day, fp, lang='cz'):
-    if pub in cache and cache[pub]['day'] == cur_day:
-        if lang == 'cz':
-            msg_cz = cache[pub]['msg_cz']
-            return msg_cz
-        if lang == 'en':
-            if 'msg_en' in cache[pub]:
-                msg_en = cache[pub]['msg_en']
-                return msg_en
-            else:
+
+    try:
+
+        if pub in cache and cache[pub]['day'] == cur_day:
+            if lang == 'cz':
                 msg_cz = cache[pub]['msg_cz']
+                return msg_cz
+            if lang == 'en':
+                if 'msg_en' in cache[pub]:
+                    msg_en = cache[pub]['msg_en']
+                    return msg_en
+                else:
+                    msg_cz = cache[pub]['msg_cz']
+                    msg_en = translate_msg(msg_cz)
+                    cache[pub]['msg_en'] = msg_en
+                    return msg_en
+        else:
+            msg_cz = fp[pub]()
+            cache[pub] = {}
+            if lang == 'cz':
+                cache[pub]['msg_cz'] = msg_cz
+                cache[pub]['day'] = cur_day
+                return msg_cz
+            if lang == 'en':
                 msg_en = translate_msg(msg_cz)
+                cache[pub]['msg_cz'] = msg_cz
                 cache[pub]['msg_en'] = msg_en
+                cache[pub]['day'] = cur_day
                 return msg_en
-    else:
-        msg_cz = fp[pub]()
-        cache[pub] = {}
-        if lang == 'cz':
-            cache[pub]['msg_cz'] = msg_cz
-            cache[pub]['day'] = cur_day
-            return msg_cz
-        if lang == 'en':
-            msg_en = translate_msg(msg_cz)
-            cache[pub]['msg_cz'] = msg_cz
-            cache[pub]['msg_en'] = msg_en
-            cache[pub]['day'] = cur_day
-            return msg_en
+    except:
+        return 'error in {}'.format(pub)
 
 warned = False
 
@@ -94,11 +103,14 @@ async def on_message(message):
     delta = datetime.timedelta(seconds=10)
     if message.author == client.user:
         return
+    if not message.content.startswith('!'):
+        return
+
     mt = message.timestamp
     
 
 
-    if (mt < last_mess + delta):
+    if (mt < last_mess + delta) and message.content.startswith('!'):
         if not warned:
             await client.send_message(message.channel, "You're doing that too often. Try again in 10 seconds")
             await client.send_message(message.channel, "To list all available menus, use !all (or !en_all for English)")
@@ -123,12 +135,15 @@ async def on_message(message):
         for pub in fp.keys():
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
             await client.send_message(message.channel, msg)
+        await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
+    
 
     if message.content.startswith('!en_all'):
         for pub in fp.keys():
             msg = write_pub(pub, cache, cur_day, fp, 'en')
             await client.send_message(message.channel, msg)
+        await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!clear'):
