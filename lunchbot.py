@@ -146,6 +146,25 @@ async def on_message(message):
         await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
+    if message.content.startswith('!both_all'):
+        for pub in fp.keys():
+            msg_both  = ''
+            msg_cz = write_pub(pub, cache, cur_day, fp, 'cz')
+            msg_en = write_pub(pub, cache, cur_day, fp, 'en')
+            msgs = []
+            for cz, en in zip(msg_cz.split('\n'), msg_en.split('\n')):
+                if cz == '' or en == '':
+                    continue 
+                msg_both += '{}\n_{}_\n'.format(cz, en)
+                if len(msg_both) > 1500:
+                    msgs.append(msg_both)
+                    msg_both = ''
+            msgs.append(msg_both)
+            for m in msgs:
+                await client.send_message(message.channel, m)
+        await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
+        last_mess = datetime.datetime.utcnow()
+    
     if message.content.startswith('!clear'):
         cache = {}
         await client.send_message(message.channel, "Cache cleared")

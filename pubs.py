@@ -115,6 +115,7 @@ def naradnici():
         else:
             retstr += last + '\n'
             last = txt
+    retstr += last
     return retstr
 
 
