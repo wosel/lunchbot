@@ -135,7 +135,7 @@ async def on_message(message):
         for pub in fp.keys():
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
             await client.send_message(message.channel, msg)
-        await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
+        await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
 
@@ -143,7 +143,7 @@ async def on_message(message):
         for pub in fp.keys():
             msg = write_pub(pub, cache, cur_day, fp, 'en')
             await client.send_message(message.channel, msg)
-        await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
+        await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!both_all'):
@@ -162,7 +162,7 @@ async def on_message(message):
             msgs.append(msg_both)
             for m in msgs:
                 await client.send_message(message.channel, m)
-        await client.send_message(message.channel, ':peace: :chestnut: :peprasul: :house: :phoenix: :man_with_turban::skin-tone-4:')
+        await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!clear'):
