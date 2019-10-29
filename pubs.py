@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import datetime
+from unidecode import unidecode
+
 
 def klid():
 
@@ -14,6 +16,10 @@ def klid():
         htext = header.get_text().strip()
         if htext == '':
             continue
+        htext_filtered = ''.join([x for x  in unidecode(htext.lower()) if x.isalnum()])
+        if htext_filtered not in ['pondeli', 'utery', 'streda', 'ctvrtek', 'patek']:
+            continue 
+            
         if today != day_ctr:
             day_ctr += 1
             continue

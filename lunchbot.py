@@ -17,6 +17,7 @@ TOKEN = config['token']
 client = discord.Client()
 last_mess = datetime.datetime.utcnow() - datetime.timedelta(seconds=10)
 cache = {}
+rib_alert = None
 
 def all_upper(inp_string):
     return all(x.isupper() for x in inp_string.replace(',', '').replace('.', '').replace(' ', '').replace(':', '').replace(';', ''))
@@ -57,10 +58,14 @@ def translate_msg(msg_cz):
     return msg_en
 
 def write_pub(pub, cache, cur_day, fp, lang='cz'):
+    global rib_alert
 
     try:
 
         if pub in cache and cache[pub]['day'] == cur_day:
+            msg_cz = cache[pub]['msg_cz']
+            if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower():
+                rib_alert = pub
             if lang == 'cz':
                 msg_cz = cache[pub]['msg_cz']
                 return msg_cz
@@ -75,6 +80,8 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
                     return msg_en
         else:
             msg_cz = fp[pub]()
+            if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower():
+                rib_alert = pub
             cache[pub] = {}
             if lang == 'cz':
                 cache[pub]['msg_cz'] = msg_cz
@@ -96,6 +103,8 @@ async def on_message(message):
     global cache
     global last_mess
     global warned
+    global rib_alert
+    rib_alert = None
     fp = {'klid': klid, 'upecku': upecku, 'peprasul': peprasul, 'naradnici': naradnici}
     cur_day = datetime.datetime.now().day
 
@@ -132,24 +141,43 @@ async def on_message(message):
             last_mess = datetime.datetime.utcnow()
 
     if message.content.startswith('!all'):
+        rib_list = []
         for pub in fp.keys():
+            rib_alert = None
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
+            if rib_alert is not None:
+                rib_list.append(rib_alert)
             await client.send_message(message.channel, msg)
+
+        if len(rib_list) > 0:
+            m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join(rib_list))
+            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
         await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
 
     if message.content.startswith('!en_all'):
+        rib_list = []
         for pub in fp.keys():
+            rib_alert = None
             msg = write_pub(pub, cache, cur_day, fp, 'en')
+            if rib_alert is not None:
+                rib_list.append(rib_alert)
             await client.send_message(message.channel, msg)
+        if len(rib_list) > 0:
+            m = 'ALERT!!! Ribs found: {}'.format(','.join(rib_list))
+            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
         await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!both_all'):
+        rib_list = []
         for pub in fp.keys():
+            rib_alert = None
             msg_both  = ''
             msg_cz = write_pub(pub, cache, cur_day, fp, 'cz')
+            if rib_alert is not None:
+                rib_list.append(rib_alert)
             msg_en = write_pub(pub, cache, cur_day, fp, 'en')
             msgs = []
             for cz, en in zip(msg_cz.split('\n'), msg_en.split('\n')):
@@ -162,7 +190,13 @@ async def on_message(message):
             msgs.append(msg_both)
             for m in msgs:
                 await client.send_message(message.channel, m)
+        if len(rib_list) > 0:
+            m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join(rib_list))
+            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
+            m = 'ALERT!!! Ribs found: {}'.format(','.join(rib_list))
+            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
         await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
+
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!clear'):
