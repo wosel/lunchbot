@@ -75,12 +75,23 @@ def peprasul():
     menudiv = soup.find_all('div', divcl)
     retstr = '[PEPŘ A SŮL]\n'
 
+    foodlist = []
+    pricelist = []
     for food in menudiv[0].findChildren('span'):
 
         el = food.findChildren('b')
         if len(el) > 0:
             tx = el[0].get_text().strip()
-            retstr += tx + '\n'
+            if unidecode(tx.lower()).startswith('kolac z domaci'):
+                break
+            foodlist.append(tx)
+        if food.has_attr('class'):
+            if food['class'][0] == 'cz_wh_right':
+                tx = food.get_text().strip().replace(' Kč', '')
+                pricelist.append(tx)
+       
+    for f, p in zip(foodlist, pricelist):
+        retstr += f + ' ' + p + '\n'
     return retstr
 
 def upecku():
