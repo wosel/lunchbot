@@ -107,7 +107,10 @@ def upecku():
 
             txt = span.get_text().strip()
             if len(txt) > 4:
-                retstr += txt + '\n'
+                retstr += txt
+        for div in menuitem.findChildren('div'):
+            txt = div.get_text().strip().replace('Kč', '')
+            retstr += ' ' + txt + ',-\n'
     return retstr
 
 def naradnici():
