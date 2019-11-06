@@ -19,6 +19,24 @@ last_mess = datetime.datetime.utcnow() - datetime.timedelta(seconds=10)
 cache = {}
 rib_alert = None
 
+pub2name = {
+    'klid': 'Klid',
+    'upecku': 'U Pecků',
+    'naradnici': 'Na Radnici',
+    'peprasul': 'Pepř a sůl'
+}
+
+pub2emoji = {
+    'klid': ':peace:',
+    'upecku': ':chestnut:',
+    'naradnici': ':house:',
+    'peprasul': '<:peprasul:580322318526709780>'
+}
+
+all_emoji = 'Vote below: '
+all_emoji += ' '.join(list(pub2emoji.values()) + ['<:phoenix:578278816435273728>'] + [':man_with_turban::skin-tone-4:'])
+
+
 def all_upper(inp_string):
     return all(x.isupper() for x in inp_string.replace(',', '').replace('.', '').replace(' ', '').replace(':', '').replace(';', ''))
 
@@ -62,22 +80,22 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
 
     try:
 
+        pre_string = '[{}] {}\n'.format(pub2name[pub].upper(), pub2emoji[pub])
         if pub in cache and cache[pub]['day'] == cur_day:
             msg_cz = cache[pub]['msg_cz']
             if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower():
                 rib_alert = pub
             if lang == 'cz':
-                msg_cz = cache[pub]['msg_cz']
-                return msg_cz
+                return pre_string + msg_cz
             if lang == 'en':
                 if 'msg_en' in cache[pub]:
                     msg_en = cache[pub]['msg_en']
-                    return msg_en
+                    return pre_string + msg_en
                 else:
                     msg_cz = cache[pub]['msg_cz']
                     msg_en = translate_msg(msg_cz)
                     cache[pub]['msg_en'] = msg_en
-                    return msg_en
+                    return pre_string + msg_en
         else:
             msg_cz = fp[pub]()
             if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower():
@@ -86,13 +104,13 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
             if lang == 'cz':
                 cache[pub]['msg_cz'] = msg_cz
                 cache[pub]['day'] = cur_day
-                return msg_cz
+                return pre_string + msg_cz
             if lang == 'en':
                 msg_en = translate_msg(msg_cz)
                 cache[pub]['msg_cz'] = msg_cz
                 cache[pub]['msg_en'] = msg_en
                 cache[pub]['day'] = cur_day
-                return msg_en
+                return pre_string + msg_en
     except:
         return 'error in {}'.format(pub)
 
@@ -150,9 +168,10 @@ async def on_message(message):
             await client.send_message(message.channel, msg)
 
         if len(rib_list) > 0:
-            m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join(rib_list))
+            m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
+        #await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
+        await client.send_message(message.channel, all_emoji)
         last_mess = datetime.datetime.utcnow()
     
 
@@ -165,9 +184,9 @@ async def on_message(message):
                 rib_list.append(rib_alert)
             await client.send_message(message.channel, msg)
         if len(rib_list) > 0:
-            m = 'ALERT!!! Ribs found: {}'.format(','.join(rib_list))
+            m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
+        await client.send_message(message.channel, all_emoji)
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!both_all'):
@@ -191,11 +210,11 @@ async def on_message(message):
             for m in msgs:
                 await client.send_message(message.channel, m)
         if len(rib_list) > 0:
-            m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join(rib_list))
+            m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-            m = 'ALERT!!! Ribs found: {}'.format(','.join(rib_list))
+            m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
+        await client.send_message(message.channel, all_emoji)
 
         last_mess = datetime.datetime.utcnow()
     

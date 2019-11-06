@@ -9,7 +9,8 @@ def klid():
     response = requests.get('http://www.klidpopraci.cz/tydenni-menu/')
 
     soup = BeautifulSoup(response.content, 'lxml')
-    retstr = '[KLID]\n'
+    #retstr = '[KLID]\n'
+    retstr = ''
     day_ctr = 0
     today = datetime.datetime.today().weekday()
     for header in soup.find_all('h2'):
@@ -73,8 +74,8 @@ def peprasul():
 
             mark = True
     menudiv = soup.find_all('div', divcl)
-    retstr = '[PEPŘ A SŮL]\n'
-
+    #retstr = '[PEPŘ A SŮL]\n'
+    retstr = ''
     foodlist = []
     pricelist = []
     for food in menudiv[0].findChildren('span'):
@@ -99,7 +100,8 @@ def upecku():
     response = requests.get('http://upecku.cz/menu/')
     soup = BeautifulSoup(response.content, 'lxml')
 
-    retstr = '[U PECKŮ]\n'
+    #retstr = '[U PECKŮ]\n'
+    retstr = ''
     daily = soup.findAll('div', {'id': 'tabs-1'})
 
     for menuitem in daily[0].findChildren('div', {'class': 'menu-item'}):
@@ -117,7 +119,8 @@ def naradnici():
     response = requests.get('http://www.hospudkanaradnici.cz/new2016-2/index.php/menu/denni-menu')
     soup = BeautifulSoup(response.content, 'lxml')
 
-    retstr = '[NA RADNICI]\n'
+    #retstr = '[NA RADNICI]\n'
+    retstr = ''
     iframe = soup.find_all('iframe')[0]
     response = requests.get(iframe.attrs['src'])
     iframe_soup = BeautifulSoup(response.content, 'lxml')
