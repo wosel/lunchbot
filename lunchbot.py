@@ -37,6 +37,7 @@ all_emoji = 'Vote below: '
 all_emoji += ' '.join(list(pub2emoji.values()) + ['<:phoenix:578278816435273728>'] + [':man_with_turban::skin-tone-4:'])
 
 
+
 def all_upper(inp_string):
     return all(x.isupper() for x in inp_string.replace(',', '').replace('.', '').replace(' ', '').replace(':', '').replace(';', ''))
 
@@ -49,8 +50,8 @@ def translate_string(inp_string):
 
 def translate_msg(msg_cz):
     msg_split = msg_cz.split('\n')
-    msg_en_split = [msg_split[0]]
-    for mline in msg_split[1:]:
+    msg_en_split = []
+    for mline in msg_split:
         l_split = mline.split(' ')
         new_line = []
         first = True
@@ -231,4 +232,9 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
+
+client.close()
+client.logout()
 client.run(TOKEN)
+client.close()
+client.logout()
