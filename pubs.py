@@ -4,7 +4,7 @@ import datetime
 from unidecode import unidecode
 
 
-def klid():
+def klid_old():
 
     response = requests.get('http://www.klidpopraci.cz/tydenni-menu/')
 
@@ -52,6 +52,40 @@ def klid():
         retstr += last_txt + '\n'
         break
     return retstr
+def klid():
+
+    dayct2dayname ={
+        0: 'pondeli',
+        1: 'utery',
+        2: 'streda',
+        3: 'ctvrtek',
+        4: 'patek',
+    
+    }   
+
+    response = requests.get('http://www.klidpopraci.cz/tydenni-menu/')
+
+    soup = BeautifulSoup(response.content, 'lxml')
+    retstr = ''
+    today = datetime.datetime.today().weekday()
+    in_day = False
+    for para in soup.find_all('p'):
+        para_text = para.get_text().strip().replace('\n', ' ')
+        
+        para_text_filtered = ''.join([x for x in unidecode(para_text.lower()) if x.isalnum()])
+        if para_text_filtered == dayct2dayname[today]:
+            in_day = True
+            continue
+
+        if in_day and para_text_filtered in ['pondeli', 'utery', 'streda', 'ctvrtek', 'patek']:
+            break
+        if in_day:
+            retstr += para_text + '\n'
+    return retstr
+            
+
+
+
 
 def peprasul():
     response = requests.get('https://peprasul.cz/poledni-menu/')

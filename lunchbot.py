@@ -112,8 +112,10 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
                 cache[pub]['msg_en'] = msg_en
                 cache[pub]['day'] = cur_day
                 return pre_string + msg_en
-    except:
+    except Exception as e:
         return 'error in {}'.format(pub)
+        #return 'error in {}: {}'.format(pub, e)
+        
 
 warned = False
 
