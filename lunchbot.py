@@ -3,6 +3,8 @@ import datetime
 import time, sys
 from pubs import *
 import json
+from bs4 import BeautifulSoup
+from unidecode import unidecode
 
 try:
     config_fname = sys.argv[1]
@@ -23,7 +25,8 @@ pub2name = {
     'klid': 'Klid',
     'upecku': 'U Pecků',
     'naradnici': 'Na Radnici',
-    'peprasul': 'Pepř a sůl'
+    'peprasul': 'Pepř a sůl',
+    'hollar': 'U Hollara',
 }
 
 pub2emoji = {
@@ -118,6 +121,35 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
         
 
 warned = False
+def hollar():
+
+    response = requests.get('http://www.restauraceuhollara.cz/')
+    soup = BeautifulSoup(response.content, 'lxml')
+    retstr = ''
+    for header in soup.find_all('h3'):
+        htext = header.get_text().strip()
+        if htext.startswith('MENU') or htext.startswith('Hotovky') or htext.startswith('Poledn'):
+            for elem in header.next_siblings:
+                if elem.name and elem.name.startswith('table'):
+                    tds = elem.find_all('td')
+                    for td in tds:
+                        try:
+                            txt = td.get_text().strip().replace('\n', ' ')
+                
+                        except:
+                            continue
+                        retstr += txt + '\n'
+                    break
+    return retstr 
+
+def hollar_ribs():
+    hollar_menu = hollar()
+        
+    if 'žebra' in hollar_menu.lower() or 'žebírka' in hollar_menu.lower() or 'žebro' in hollar_menu.lower() or 'žebírko' in hollar_menu.lower():
+        return True
+    else:
+        return False
+        
 
 @client.event
 async def on_message(message):
@@ -169,7 +201,11 @@ async def on_message(message):
             if rib_alert is not None:
                 rib_list.append(rib_alert)
             await client.send_message(message.channel, msg)
-
+        try:
+            if hollar_ribs():
+                rib_list.append('hollar')
+        except:
+            print('hollar error')
         if len(rib_list) > 0:
             m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
@@ -186,6 +222,11 @@ async def on_message(message):
             if rib_alert is not None:
                 rib_list.append(rib_alert)
             await client.send_message(message.channel, msg)
+        try:
+            if hollar_ribs():
+                rib_list.append('hollar')
+        except:
+            print('hollar error')
         if len(rib_list) > 0:
             m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
@@ -212,6 +253,12 @@ async def on_message(message):
             msgs.append(msg_both)
             for m in msgs:
                 await client.send_message(message.channel, m)
+
+        try:
+            if hollar_ribs():
+                rib_list.append('hollar')
+        except:
+            print('hollar error')
         if len(rib_list) > 0:
             m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
