@@ -117,7 +117,7 @@ def peprasul():
         el = food.findChildren('b')
         if len(el) > 0:
             tx = el[0].get_text().strip()
-            if unidecode(tx.lower()).startswith('kolac z domaci'):
+            if unidecode(tx.lower()).startswith('kolac'):
                 break
             foodlist.append(tx)
         if food.has_attr('class'):
