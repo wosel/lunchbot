@@ -53,7 +53,6 @@ def klid_old():
         break
     return retstr
 def klid():
-
     dayct2dayname ={
         0: 'pondeli',
         1: 'utery',
@@ -69,18 +68,18 @@ def klid():
     retstr = ''
     today = datetime.datetime.today().weekday()
     in_day = False
-    for para in soup.find_all('p'):
-        para_text = para.get_text().strip().replace('\n', ' ')
-        
-        para_text_filtered = ''.join([x for x in unidecode(para_text.lower()) if x.isalnum()])
-        if para_text_filtered == dayct2dayname[today]:
-            in_day = True
-            continue
+    for sec in soup.find_all(['section']):
+        for para in sec.find_all(['p', 'h2', 'div']):
+            para_text = para.get_text().strip().replace('\n', ' ')
+            para_text_filtered = ''.join([x for x in unidecode(para_text.lower()) if x.isalnum()])
+            if para_text_filtered == dayct2dayname[today]:
+                in_day = True
+                continue
 
-        if in_day and para_text_filtered in ['pondeli', 'utery', 'streda', 'ctvrtek', 'patek']:
-            break
-        if in_day:
-            retstr += para_text + '\n'
+            if in_day and para_text_filtered in ['pondeli', 'utery', 'streda', 'ctvrtek', 'patek']:
+                break
+            if in_day and para_text != '':
+                retstr += para_text + '\n'
     return retstr
             
 
