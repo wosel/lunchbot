@@ -47,8 +47,9 @@ def all_upper(inp_string):
 def translate_string(inp_string):
     r = requests.post('https://lindat.mff.cuni.cz/services/translation/api/v2/models/cs-en', {'input_text': inp_string} )
     dec = r.content.decode()
-    ev = eval(dec)
-    tx = ev[0].strip()
+    #print(dec)
+    #ev = eval(dec)
+    tx = dec.strip()
     return tx
 
 def translate_msg(msg_cz):
@@ -116,6 +117,7 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
                 cache[pub]['day'] = cur_day
                 return pre_string + msg_en
     except Exception as e:
+        print(e)
         return 'error in {}'.format(pub)
         #return 'error in {}: {}'.format(pub, e)
         
@@ -200,7 +202,8 @@ async def on_message(message):
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
             if rib_alert is not None:
                 rib_list.append(rib_alert)
-            await client.send_message(message.channel, msg)
+            if msg.strip() != '':
+                await client.send_message(message.channel, msg)
         try:
             if hollar_ribs():
                 rib_list.append('hollar')
@@ -252,7 +255,8 @@ async def on_message(message):
                     msg_both = ''
             msgs.append(msg_both)
             for m in msgs:
-                await client.send_message(message.channel, m)
+                if len(m.strip()) > 0:
+                    await client.send_message(message.channel, m)
 
         try:
             if hollar_ribs():
