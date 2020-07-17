@@ -36,8 +36,28 @@ pub2emoji = {
     'peprasul': '<:peprasul:580322318526709780>'
 }
 
-all_emoji = 'Vote below: '
-all_emoji += ' '.join(list(pub2emoji.values()) + ['<:phoenix:578278816435273728>'] + [':man_with_turban::skin-tone-4:'])
+import random
+
+vote_gif_list = [
+    'https://tenor.com/view/domo-mascot-elections-vote-gif-5454353',
+    'https://tenor.com/view/your-vote-counts-vote-go-vote-encourage-promote-gif-14816222',
+    'https://tenor.com/view/fist-matt-huyn-vota-vote-go-vote-gif-12755720',
+    'https://tenor.com/view/vote-cat-pusheen-excited-bounce-gif-7398664',
+    'https://tenor.com/view/time-to-vote-go-vote-vote-gif-12835582',
+    'https://tenor.com/view/vote-primary-day-voting-ballot-gif-12451002',
+    'https://tenor.com/view/vote-go-vote-dark-knight-joker-heath-ledger-gif-5111826',
+    'https://tenor.com/view/vote-obama-yourvotematters-gif-5111894',
+    'https://tenor.com/view/vote-ready-election-america-usa-gif-12664504',
+    'https://tenor.com/view/vote-jimcarrey-type-computer-voting-gif-5111579'
+]
+
+def get_all_emoji():
+    gif_idx = random.randint(1, len(vote_gif_list))
+    all_emoji = 'Vote below: '
+    all_emoji += ' '.join(list(pub2emoji.values()) + ['<:phoenix:578278816435273728>'] + [':man_with_turban::skin-tone-4:'])
+    all_emoji += '{}\n'.format(vote_gif_list[gif_idx-1])
+    return all_emoji
+
 
 
 
@@ -187,11 +207,21 @@ async def on_message(message):
     for pub in fp.keys():
         if message.content.startswith('!'+pub):
             msg = write_pub(pub, cache, cur_day, fp, 'cz')
+            while len(msg) >= 2000:
+                msg_a = msg[:1800]
+                msg_b = msg[1800:]
+                await client.send_message(message.channel, msg_a)
+                msg = msg_b
             await client.send_message(message.channel, msg)
             last_mess = datetime.datetime.utcnow()
 
         elif message.content.startswith('!en_'+pub):
             msg = write_pub(pub, cache, cur_day, fp, 'en')
+            while len(msg) >= 2000:
+                msg_a = msg[:1800]
+                msg_b = msg[1800:]
+                await client.send_message(message.channel, msg_a)
+                msg = msg_b
             await client.send_message(message.channel, msg)
             last_mess = datetime.datetime.utcnow()
 
@@ -203,6 +233,11 @@ async def on_message(message):
             if rib_alert is not None:
                 rib_list.append(rib_alert)
             if msg.strip() != '':
+                while len(msg) >= 2000:
+                    msg_a = msg[:1800]
+                    msg_b = msg[1800:]
+                    await client.send_message(message.channel, msg_a)
+                    msg = msg_b
                 await client.send_message(message.channel, msg)
         try:
             if hollar_ribs():
@@ -213,7 +248,7 @@ async def on_message(message):
             m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
         #await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
-        await client.send_message(message.channel, all_emoji)
+        await client.send_message(message.channel, get_all_emoji())
         last_mess = datetime.datetime.utcnow()
     
 
@@ -233,7 +268,7 @@ async def on_message(message):
         if len(rib_list) > 0:
             m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, all_emoji)
+        await client.send_message(message.channel, get_all_emoji())
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!both_all'):
@@ -268,7 +303,7 @@ async def on_message(message):
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
             m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
             await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, all_emoji)
+        await client.send_message(message.channel, get_all_emoji())
 
         last_mess = datetime.datetime.utcnow()
     
