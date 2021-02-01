@@ -27,12 +27,14 @@ pub2name = {
     'naradnici': 'Na Radnici',
     'peprasul': 'Pepř a sůl',
     'hollar': 'U Hollara',
+    'ukocoura': 'U kocoura',
 }
 
 pub2emoji = {
     'klid': ':peace:',
     'upecku': ':chestnut:',
     'naradnici': ':house:',
+    'ukocoura': ':cat2:',
     'peprasul': '<:peprasul:580322318526709780>'
 }
 
@@ -69,6 +71,7 @@ def translate_string(inp_string):
     dec = r.content.decode()
     #print(dec)
     #ev = eval(dec)
+    #tx = dec.strip()
     tx = dec.strip()
     return tx
 
@@ -88,9 +91,7 @@ def translate_msg(msg_cz):
                     new_word = lowerword[0].upper() + lowerword[1:]
                 else:
                     new_word = lowerword
-
             new_line.append(new_word)
-
         fixed_line = ' '.join(new_line)
         translated_line = ''
         if len(fixed_line.strip()) > 0:
@@ -108,7 +109,7 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
         pre_string = '[{}] {}\n'.format(pub2name[pub].upper(), pub2emoji[pub])
         if pub in cache and cache[pub]['day'] == cur_day:
             msg_cz = cache[pub]['msg_cz']
-            if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower():
+            if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower() or 'žebro' in msg_cz.lower() or 'žebírko' in msg_cz.lower():
                 rib_alert = pub
             if lang == 'cz':
                 return pre_string + msg_cz
@@ -123,7 +124,7 @@ def write_pub(pub, cache, cur_day, fp, lang='cz'):
                     return pre_string + msg_en
         else:
             msg_cz = fp[pub]()
-            if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower():
+            if 'žebra' in msg_cz.lower() or 'žebírka' in msg_cz.lower() or 'žebro' in msg_cz.lower() or 'žebírko' in msg_cz.lower():
                 rib_alert = pub
             cache[pub] = {}
             if lang == 'cz':
@@ -180,7 +181,7 @@ async def on_message(message):
     global warned
     global rib_alert
     rib_alert = None
-    fp = {'klid': klid, 'upecku': upecku, 'peprasul': peprasul, 'naradnici': naradnici}
+    fp = {'klid': klid, 'upecku': upecku, 'peprasul': peprasul, 'naradnici': naradnici, 'ukocoura': ukocoura}
     cur_day = datetime.datetime.now().day
 
     # we do not want the bot to reply to itself
@@ -190,14 +191,13 @@ async def on_message(message):
     if not message.content.startswith('!'):
         return
 
-    mt = message.timestamp
     
-
+    mt = datetime.datetime.utcnow()
 
     if (mt < last_mess + delta) and message.content.startswith('!'):
         if not warned:
-            await client.send_message(message.channel, "You're doing that too often. Try again in 10 seconds")
-            await client.send_message(message.channel, "To list all available menus, use !all (or !en_all for English)")
+            await message.channel.send("You're doing that too often. Try again in 10 seconds")
+            await message.channel.send("To list all available menus, use !all (or !en_all for English)")
             warned = True
         print('too soon')
         return
@@ -210,9 +210,9 @@ async def on_message(message):
             while len(msg) >= 2000:
                 msg_a = msg[:1800]
                 msg_b = msg[1800:]
-                await client.send_message(message.channel, msg_a)
+                await message.channel.send(msg_a)
                 msg = msg_b
-            await client.send_message(message.channel, msg)
+            await message.channel.send(msg)
             last_mess = datetime.datetime.utcnow()
 
         elif message.content.startswith('!en_'+pub):
@@ -220,9 +220,9 @@ async def on_message(message):
             while len(msg) >= 2000:
                 msg_a = msg[:1800]
                 msg_b = msg[1800:]
-                await client.send_message(message.channel, msg_a)
+                await message.channel.send(msg_a)
                 msg = msg_b
-            await client.send_message(message.channel, msg)
+            await message.channel.send(msg)
             last_mess = datetime.datetime.utcnow()
 
     if message.content.startswith('!all'):
@@ -236,9 +236,9 @@ async def on_message(message):
                 while len(msg) >= 2000:
                     msg_a = msg[:1800]
                     msg_b = msg[1800:]
-                    await client.send_message(message.channel, msg_a)
+                    await message.channel.send(msg_a)
                     msg = msg_b
-                await client.send_message(message.channel, msg)
+                await message.channel.send(msg)
         try:
             if hollar_ribs():
                 rib_list.append('hollar')
@@ -246,12 +246,11 @@ async def on_message(message):
             print('hollar error')
         if len(rib_list) > 0:
             m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
-            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
+            await message.channel.send('```css\n[{}]\n```'.format(m))
         #await client.send_message(message.channel, ':peace: :chestnut: <:peprasul:580322318526709780> :house: <:phoenix:578278816435273728> :man_with_turban::skin-tone-4:')
-        await client.send_message(message.channel, get_all_emoji())
+        await message.channel.send(get_all_emoji())
         last_mess = datetime.datetime.utcnow()
     
-
     if message.content.startswith('!en_all'):
         rib_list = []
         for pub in fp.keys():
@@ -259,7 +258,7 @@ async def on_message(message):
             msg = write_pub(pub, cache, cur_day, fp, 'en')
             if rib_alert is not None:
                 rib_list.append(rib_alert)
-            await client.send_message(message.channel, msg)
+            await message.channel.send(msg)
         try:
             if hollar_ribs():
                 rib_list.append('hollar')
@@ -267,8 +266,8 @@ async def on_message(message):
             print('hollar error')
         if len(rib_list) > 0:
             m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
-            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, get_all_emoji())
+            await message.channel.send('```css\n[{}]\n```'.format(m))
+        await message.channel.send(get_all_emoji())
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!both_all'):
@@ -291,7 +290,7 @@ async def on_message(message):
             msgs.append(msg_both)
             for m in msgs:
                 if len(m.strip()) > 0:
-                    await client.send_message(message.channel, m)
+                    await message.channel.send(m)
 
         try:
             if hollar_ribs():
@@ -300,16 +299,15 @@ async def on_message(message):
             print('hollar error')
         if len(rib_list) > 0:
             m = 'POZOR!!!! Nalezena žebra: {}'.format(','.join([pub2name[x] for x in rib_list]))
-            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
+            await message.channel.send('```css\n[{}]\n```'.format(m))
             m = 'ALERT!!! Ribs found: {}'.format(','.join([pub2name[x] for x in rib_list]))
-            await client.send_message(message.channel, '```css\n[{}]\n```'.format(m))
-        await client.send_message(message.channel, get_all_emoji())
-
+            await message.channel.send('```css\n[{}]\n```'.format(m))
+        await message.channel.send(get_all_emoji())
         last_mess = datetime.datetime.utcnow()
     
     if message.content.startswith('!clear'):
         cache = {}
-        await client.send_message(message.channel, "Cache cleared")
+        await message.channel.send("Cache cleared")
 
 
 
