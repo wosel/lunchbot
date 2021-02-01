@@ -69,7 +69,7 @@ def klid():
     today = datetime.datetime.today().weekday()
     in_day = False
     for sec in soup.find_all(['section']):
-        for para in sec.find_all(['p', 'h2', 'div', 'h3', 'h1']):
+        for para in sec.find_all(['p', 'h2', 'div', 'h3', 'h1', 'strong']):
             para_text = para.get_text().strip().replace('\n', ' ')
             para_text_filtered = ''.join([x for x in unidecode(para_text.lower()) if x.isalnum()])
             if para_text_filtered == dayct2dayname[today]:
@@ -81,7 +81,19 @@ def klid():
             if in_day and para_text != '':
                 retstr += para_text + '\n'
     return retstr
-            
+
+def ukocoura():
+    response = requests.get('https://www.restauraceukocoura.com/index.php')
+    soup = BeautifulSoup(response.content, 'lxml')
+    retstr = ''
+    for p in soup.find_all(['p']):
+        p_text = p.get_text().strip()
+        for line in p_text.split('\n'):
+            if line[:2] in ['1.', '2.', '3.', '4.', '5.']:
+                retstr += line + '\n'
+
+    return retstr
+                    
 
 
 
