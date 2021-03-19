@@ -1,1 +1,3 @@
 anthrax/opt/lunchbot/config.json
+
+lunchbot:0.0.1 (or rebuild using Dockerfile)
