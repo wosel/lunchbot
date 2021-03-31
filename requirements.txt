@@ -2,5 +2,5 @@ discord==1.0.1
 requests==2.25.1
 bs4==0.0.1
 unidecode==1.2.0
-lxml==4.6.2
+lxml==4.6.3
 
